@@ -85,4 +85,16 @@ def excluir_usuario():
     conexao.commit()
 
 
+def retorna_usuario():
+
+    id = input('Digite o id do usuário: ')
+    nome_usuario = input('Digite o nome de usuário: ')
+    senha = input('Digite a senha: ')
+    
+    cursor.execute("INSERT INTO usuarios VALUES(?, ?, ?)", (id, nome_usuario, senha))
+    conexao.commit()
+
+
+
+
 

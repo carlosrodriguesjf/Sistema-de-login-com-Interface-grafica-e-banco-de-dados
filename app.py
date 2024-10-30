@@ -2,6 +2,7 @@
 
 
 import customtkinter as Ctk
+import sqlite3
 
 
 
@@ -10,14 +11,31 @@ class CadastroFuncionarios(Ctk.CTkToplevel):
         super().__init__(*args, **kwargs)
 
         def cadastro_usuarios():
+
             # Pega todo o texto do textbox
-            texto_cadastro_usuario = textbox_cadastro_usuario.get("1.0", "end").strip()  
-            texto_cadastro_senha = textbox_cadastro_senha.get().strip()
+            nome_usuario = textbox_cadastro_usuario.get("1.0", "end").strip()  
+            senha_usuario = textbox_cadastro_senha.get().strip()
+
+            # criando um banco de dados e conectado nele
+            conexao = sqlite3.connect("funcionarios.db")
+
+            # criando um cursor
+            cursor = conexao.cursor()
+
+            # buscando o último id
+            cursor.execute("SELECT * FROM funcionarios")
+            funcionarios = cursor.fetchall()
+            id = funcionarios[-1][0]
+
+            # insere dado no banco
+            cursor.execute("INSERT INTO funcionarios VALUES(?, ?, ?)", (id+1, nome_usuario, senha_usuario))
+
+            # confirmar a inclusão no banco de dados
+            conexao.commit()
 
             # Label teste cadastro com sucesso
             Ctk.CTkLabel(self, text="Cadastro realizado com sucesso!", fg_color="transparent", text_color="black").pack(pady=10)
-            print(texto_cadastro_usuario)
-            print(texto_cadastro_senha)
+   
 
 
         def fecha_cadastro_funcionarios():
@@ -133,6 +151,7 @@ class LoginFuncionarios(Ctk.CTk):
 
 app = LoginFuncionarios()
 app.mainloop()
+
 
 
 
