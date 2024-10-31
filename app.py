@@ -1,7 +1,8 @@
 
-
+##### Sistema de Login com Interface Gráfica eBanco de Dados ###
 
 import customtkinter as Ctk
+from CTkMessagebox import CTkMessagebox
 import sqlite3
 
 
@@ -10,17 +11,17 @@ class CadastroFuncionarios(Ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        def cadastro_usuarios():
-
-            # Pega todo o texto do textbox
-            nome_usuario = textbox_cadastro_usuario.get("1.0", "end").strip()  
-            senha_usuario = textbox_cadastro_senha.get().strip()
+        def cadastro_funcionarios():
 
             # criando um banco de dados e conectado nele
             conexao = sqlite3.connect("funcionarios.db")
 
-            # criando um cursor
+            #criando um cursor
             cursor = conexao.cursor()
+
+            # Pega todo o texto do textbox
+            nome_usuario = textbox_cadastro_usuario.get("1.0", "end").strip()  
+            senha_usuario = textbox_cadastro_senha.get().strip()
 
             # buscando o último id
             cursor.execute("SELECT * FROM funcionarios")
@@ -34,7 +35,10 @@ class CadastroFuncionarios(Ctk.CTkToplevel):
             conexao.commit()
 
             # Label teste cadastro com sucesso
-            Ctk.CTkLabel(self, text="Cadastro realizado com sucesso!", fg_color="transparent", text_color="black").pack(pady=10)
+            CTkMessagebox(title='Login', message="Usuário cadastrado com sucesso", width=100, height=50)
+
+
+            conexao.close()
    
 
 
@@ -50,9 +54,7 @@ class CadastroFuncionarios(Ctk.CTkToplevel):
         def apagar_textbox_cadastro_senha(evento):
             textbox_cadastro_senha.delete(0, "end")
 
-
   
-
         # Configurações da janela
         self.title("Cadastro funcionários")
         self.geometry("400x500")
@@ -70,7 +72,7 @@ class CadastroFuncionarios(Ctk.CTkToplevel):
         textbox_cadastro_senha.bind("<FocusIn>", apagar_textbox_cadastro_senha)
             
         # Botão de confirmação de cadastro
-        botao_cadastro = Ctk.CTkButton(self, text="Cadastar", command=cadastro_usuarios)
+        botao_cadastro = Ctk.CTkButton(self, text="Cadastar", command=cadastro_funcionarios)
         botao_cadastro.pack(pady=10)
 
         # Label link para login
@@ -88,15 +90,39 @@ class LoginFuncionarios(Ctk.CTk):
 
 
         def button_callback():
+
+            # criando um banco de dados e conectado nele
+            conexao = sqlite3.connect("funcionarios.db")
+
+            #criando um cursor
+            cursor = conexao.cursor()
+
             # Pega todo o texto do textbox
             texto_usuario = textbox_usuario.get("1.0", "end").strip()  
             texto_senha = textbox_senha.get().strip()
-            print(texto_usuario)
-            print(texto_senha)
 
-            # Label teste login sucesso
-            Ctk.CTkLabel(self, text="Login realizado com sucesso!", fg_color="transparent", text_color="black").pack(pady=10)
-           
+
+            # consulta o banco de dados
+            cursor.execute("SELECT * FROM funcionarios")
+            funcionarios = cursor.fetchall()
+
+            # Verifica se o login e a senha são válidos
+            login_sucesso = False
+            for funcionario in funcionarios:
+                nome_bd = funcionario[1]
+                senha_bd = funcionario[2]
+                if texto_usuario == nome_bd and texto_senha == senha_bd:
+                    login_sucesso = True
+                    break
+
+            if login_sucesso:
+                CTkMessagebox(title='Login', message="Login realizado com sucesso!", width=100, height=50)
+            else:
+                CTkMessagebox(title='Login', message="Usuário ou senha não encontrados", width=100, height=50)
+
+            
+            conexao.close()
+
 
 
         def apagar_textbox_usuario(evento):
@@ -105,7 +131,6 @@ class LoginFuncionarios(Ctk.CTk):
 
         def apagar_textbox_senha(evento):
             textbox_senha.delete("0", "end")
-
 
 
         # Configurações da janela
@@ -124,7 +149,6 @@ class LoginFuncionarios(Ctk.CTk):
         textbox_senha.insert(0, "Digite sua senha")
         textbox_senha.bind("<FocusIn>", apagar_textbox_senha)
 
-            
         # Botão de confirmação
         botao_cadastro = Ctk.CTkButton(self, text="Login", command=button_callback)
         botao_cadastro.pack(pady=10)
@@ -147,8 +171,6 @@ class LoginFuncionarios(Ctk.CTk):
             self.toplevel_window.focus_set()  # if window exists focus it
 
     
-
-
 app = LoginFuncionarios()
 app.mainloop()
 
